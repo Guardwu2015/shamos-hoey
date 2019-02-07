@@ -161,7 +161,8 @@ test('Sweepline can testIntersects', function (t) {
     e6.isLeftEndpoint = false;
 
     const crossLine = sl.addSegment(e5)
-    t.is(sl.testIntersect(midLine, crossLine), true)
+    t.deepEqual(sl.testIntersect(midLine, crossLine), {x: -0.5, y: 0})
+
     t.is(sl.testIntersect(topLine, crossLine), false)
 
     const e7 = new Event([0, 0])
@@ -176,6 +177,43 @@ test('Sweepline can testIntersects', function (t) {
     t.is(sl.testIntersect(midLine, touchEndpointLine), false)
     t.is(sl.testIntersect(topLine, touchEndpointLine), false)
 })
+
+test('Sweepline can test geodesic intersects', function (t) {
+    const e1 = new Event([51.8853, 0.2545])
+    const e2 = new Event([50.1539, 6.5552])
+    e1.otherEvent = e2
+    e2.otherEvent = e1
+    e1.isLeftEndpoint = true;
+    e2.isLeftEndpoint = false;
+    const doGeodesicIntersects = true
+
+    const sl = new Sweepline(doGeodesicIntersects)
+    const midLine = sl.addSegment(e1)
+
+    const e3 = new Event([49.0034, 2.5735])
+    const e4 = new Event([52.4403, 6.3320])
+    e3.otherEvent = e4
+    e4.otherEvent = e3
+    e3.isLeftEndpoint = true;
+    e4.isLeftEndpoint = false;
+
+    const topLine = sl.addSegment(e3)
+    const ip1 = sl.testIntersect(midLine, topLine)
+    t.deepEqual(ip1, {y: 4.468639332370773, x: 50.73015681840923})
+
+    const e5 = new Event([-0.5, 0.5])
+    const e6 = new Event([-0.5, -1])
+
+    e5.otherEvent = e6
+    e6.otherEvent = e5
+    e5.isLeftEndpoint = true;
+    e6.isLeftEndpoint = false;
+
+    const crossLine = sl.addSegment(e5)
+    const ip = sl.testIntersect(midLine, crossLine)
+    t.deepEqual(ip, false)
+})
+
 
 test('Sweepline is correctly sorted', function (t) {
     const e1 = new Event([-1, 0])
